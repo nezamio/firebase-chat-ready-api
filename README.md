@@ -195,7 +195,13 @@ Tests are using Jest, to run the tests use:
 $ npm test
 ```
 ---
+## Roadmap
+Check out our [roadmap](https://github.com/nezamio/firebase-chat-ready-api/projects/1) to get informed by the latest feature released and the upcoming ones. You can also give us insights and vote for a specific feature. And your are more than welcome to contribute.
+
+---
 >Note: You probably  should change the rules of the firbase to linked correctly 
 
 
 **👀 see `examples.js`**
+
+
