@@ -190,7 +190,7 @@ console.log(date.toLocaleString())
 
 ---
 ## Tests
-Tests are using Jest, to run the tests use:
+Tests are using Jest, to run the tests add your config object in the test file and run:
 ```sh
 $ npm test
 ```
