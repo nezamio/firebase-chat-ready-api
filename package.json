@@ -1,0 +1,20 @@
+{
+  "name": "firebase-chat",
+  "version": "1.0.0",
+  "description": "chat app with firebase",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest chat.test.js"
+  },
+  "keywords": [
+    "chat",
+    "firebase"
+  ],
+  "author": "abanob",
+  "license": "ISC",
+  "dependencies": {
+    "firebase": "^5.5.4",
+    "jest": "^23.6.0",
+    "lodash": "^4.17.11"
+  }
+}
