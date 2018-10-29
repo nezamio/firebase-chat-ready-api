@@ -11,16 +11,30 @@
 		"chat",
 		"firebase",
 		"messages",
-		"API",
 		"chat room",
 		"realtime",
-		"manager"
+		"manager",
+		"realtime-cha",
+		"chatting room",
+		"chatting",
+		"chat-manager"
 	],
+	"homepage": "https://github.com/nezamio/firebase-chat-ready-api#readme",
+	"bugs": {
+		"url": "https://github.com/nezamio/firebase-chat-ready-api/issues",
+		"email": "abanobmossad@gmail.com"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/nezamio/firebase-chat-ready-api.git"
+	},
 	"author": "abanob mossad",
 	"license": "MIT",
 	"dependencies": {
 		"firebase": "^5.5.4",
-		"jest": "^23.6.0",
 		"lodash": "^4.17.11"
+	},
+	"devDependencies": {
+		"jest": "^23.6.0"
 	}
 }
