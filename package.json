@@ -1,25 +1,26 @@
 {
-  "name": "firebase-chat-ready-api",
-  "version": "1.0.0",
-  "description": "Firebase-chat-ready-API is a simple package, enable fast connection to firebase realtime database to create chat manager API.",
-  "main": "index.js",
-  "scripts": {
-    "test": "jest chat.test.js"
-  },
-  "keywords": [
-    "chat",
-    "firebase",
-    "messages",
-    "API",
-    "chat room",
-    "realtime",
-    "manager"
-  ],
-  "author": "abanob mossad",
-  "license": "MIT",
-  "dependencies": {
-    "firebase": "^5.5.4",
-    "jest": "^23.6.0",
-    "lodash": "^4.17.11"
-  }
+	"name": "firebase-chat-ready-api",
+	"version": "1.0.0",
+	"description": "Firebase-chat-ready-API is a simple package, enable fast connection to firebase realtime database to create chat manager API.",
+	"main": "index.js",
+	"scripts": {
+		"test": "jest chat.test.js",
+		"prepublish": "npm test"
+	},
+	"keywords": [
+		"chat",
+		"firebase",
+		"messages",
+		"API",
+		"chat room",
+		"realtime",
+		"manager"
+	],
+	"author": "abanob mossad",
+	"license": "MIT",
+	"dependencies": {
+		"firebase": "^5.5.4",
+		"jest": "^23.6.0",
+		"lodash": "^4.17.11"
+	}
 }
