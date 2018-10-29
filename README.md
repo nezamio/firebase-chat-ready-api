@@ -1,5 +1,5 @@
 # Firebase chat API  🔥
-Firebase-chat-ready-API is a simple package enable  fast connection to firebase and create chat manager. Create chat rooms, send messages and listen to instance messages .
+Firebase-chat-ready-API is a simple package enable  fast connection to firebase realtime database and create chat manager. Create chat rooms, send messages and listen to instance messages .
 
 ## Getting started in a minute
 **Installation with**
