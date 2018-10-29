@@ -37,7 +37,7 @@ initializeFirebase(config);
 #### Create chat room between two users
 
 ```js
-var chatRoomOne = new ChatRoom("chat title", userAId, userBId, err => {
+var chatRoomOne = new ChatRoom("chat title", "user1233", "user1234", err => {
 	if (!err) console.log(" chat room created successfully");
 });
 ```
@@ -45,8 +45,8 @@ var chatRoomOne = new ChatRoom("chat title", userAId, userBId, err => {
 This class take **5** params as initial values
 
 1. `title` the chat room title
-2. `userA` the one of the members "\id" of the chat
-3. `userB` the other member "\id"
+2. `userA` the one of the members "id" of the chat
+3. `userB` the other member "id"
 4. `onComplete` it's a callback function called after the chat room created successfully in firebase
 5. `fromRef` create a class for chat room with it's firebase reference 
 
