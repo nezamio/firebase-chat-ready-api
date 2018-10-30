@@ -1,11 +1,10 @@
 {
-	"name": "firebase-chat-ready-api",
+	"name": "@nezam/firebase-chat-ready-api",
 	"version": "1.0.0",
 	"description": "Firebase-chat-ready-API is a simple package, enable fast connection to firebase realtime database to create chat manager API.",
 	"main": "index.js",
 	"scripts": {
-		"test": "jest chat.test.js",
-		"prepublish": "npm test"
+		"test": "jest chat.test.js"
 	},
 	"keywords": [
 		"chat",
