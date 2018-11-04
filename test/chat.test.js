@@ -5,12 +5,7 @@ const {
 } = require("../index");
 
 const config = {
-    apiKey: "AIzaSyCA2EnrXeegZwKlhbkQFYnPX55BOxnGGE8",
-    authDomain: "pets-app-56080.firebaseapp.com",
-    databaseURL: "https://pets-app-56080.firebaseio.com",
-    projectId: "pets-app-56080",
-    storageBucket: "pets-app-56080.appspot.com",
-    messagingSenderId: "777761018641"
+  //your firebase key...
 
 }
 
