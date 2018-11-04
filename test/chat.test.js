@@ -4,8 +4,14 @@ const {
     Message
 } = require("../index");
 
-const config={
-    // config keys...
+const config = {
+    apiKey: "AIzaSyCA2EnrXeegZwKlhbkQFYnPX55BOxnGGE8",
+    authDomain: "pets-app-56080.firebaseapp.com",
+    databaseURL: "https://pets-app-56080.firebaseio.com",
+    projectId: "pets-app-56080",
+    storageBucket: "pets-app-56080.appspot.com",
+    messagingSenderId: "777761018641"
+
 }
 
 describe("# Initialize Firebase app", () => {
@@ -212,5 +218,22 @@ describe("# Chat Room", () => {
             })
             expect(removedMessage).toEqual(message)
         })
+    })
+    describe("#find by uid", () => {
+
+        it("should find the chat", () => {
+            const uid = "-LPK1Rr5mzwkuSDV9U9a"
+            ChatRoom.findById(uid, (err, chat) => {
+                expect(chat).toBeInstanceOf(ChatRoom)
+            })
+        })
+
+        it("should fail if chat not found", () => {
+            const uid = "-LPK1Rr5mzwkuSDV9U9a"
+            ChatRoom.findById(uid, (err, chat) => {
+                expect(err).toEqual("Chat not found!")
+            })
+        })
+
     })
 })

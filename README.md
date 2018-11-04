@@ -1,35 +1,44 @@
-# Firebase chat API  🔥
-Firebase-chat-ready-API is a simple package enable  fast connection to firebase realtime database and create chat manager. Create chat rooms, send messages and listen to instance messages .
+# Firebase chat API 🔥
+
+Firebase-chat-ready-API is a simple package enable fast connection to firebase realtime database to create chat manager.  Create chat rooms, send messages and listen to instance messages .
 
 ## Getting started in a minute
+
 **Installation with**
+
 ```sh
 $ npm install @nezam/firebase-chat-ready-api
 ```
+
 ## Usage
 
-> This package have two main classes `ChatRoom` class and `Message` class as the `ChatRoom`  class have properties and functions related to the whole chat room such as title, get messages, sending messages, etc ...
+> This package have two main classes `ChatRoom` class and `Message` class as the `ChatRoom` class have properties and functions related to the whole chat room such as title, get messages, sending messages, etc ...
 >
 > and the `Message` class have properties and functions related to individual message like message body, time of creation, update message, etc ...
 
 #### First, import it
 
 No ES6
+
 ```js
-const { initializeFirebase, ChatRoom } = require("@nezam/firebase-chat-ready-api");
+const {
+	initializeFirebase,
+	ChatRoom
+} = require("@nezam/firebase-chat-ready-api");
 ```
+
 ES6
+
 ```js
-import { initializeFirebase, ChatRoom } from "@nezam/firebase-chat-ready-api"
+import { initializeFirebase, ChatRoom } from "@nezam/firebase-chat-ready-api";
 ```
+
 #### Initialize the app
 
 ```js
-var config = {
+initializeFirebase({
 	// your firebase app config...
-};
-
-initializeFirebase(config);
+});
 ```
 
 ---
@@ -48,7 +57,16 @@ This class take **5** params as initial values
 2. `userA` the one of the members "id" of the chat
 3. `userB` the other member "id"
 4. `onComplete` it's a callback function called after the chat room created successfully in firebase
-5. `fromRef` create a class for chat room with it's firebase reference 
+5. `fromRef` create a class for chat room with it's firebase reference
+
+> Note: you can get created chat props also in the callback function through:
+>
+> ```js
+> var chatRoomOne = new ChatRoom("chat title", "user1233", "user1234", err => {
+> 	// get the chat key
+> 	if (!err) console.log(chatRoomOne.chatRoomRef.key);
+> });
+> ```
 
 ---
 
@@ -60,7 +78,7 @@ chatRoomOne.setNewTitle("new title", title => {
 });
 ```
 
-This method is property of `ChatRoom` class. this method call with **2** params
+This method is property of `ChatRoom` class. call with **2** params
 
 1. `title` as a new string represent the new title
 2. `onComplete` callback after changing the title passing the new title
@@ -77,14 +95,13 @@ var message = chatRoomOne.sendMessage("Hi", userId, err => {
 });
 ```
 
-This method also member of `ChatRoom` class. as it call with **3** params
+This method also member of `ChatRoom` class. with **3** params
 
 1. `body` string is the message body
-2. `from` represent the user how send the message 
+2. `from` represent the user how send the message
 3. `onComplete` callback after sending the message to the firbase
 
 this method is return `Message` instance
-
 
 ---
 
@@ -101,9 +118,9 @@ ChatRoom.getUserChatRooms(userId, (err, chats) => {
 
 > Note: This method is a `static` function
 
-This method call with **2** params
+call with **2** params
 
-1. `userId` as it's the user \id
+1. `userId` as it's the user id
 2. `onComplete` callback function call after receiving all chats from firebase passing **2** params
 
      1. `err` is the error message if the call failed
@@ -119,7 +136,7 @@ chatRoomOne.getMessagesAndListen(message => {
 });
 ```
 
-This method call **1** params
+call **1** params
 
 1. `action` callback function is the action that should happen when receiving a message
 
@@ -154,7 +171,7 @@ var removedMessage = message.remove();
 
 This method member of `Message` class
 
-this method return the deleted message
+return the deleted message
 
 call with **1** params
 
@@ -163,7 +180,7 @@ call with **1** params
 
 ---
 
-**You can get CreatedAt  and updatedAt timestamps by message instance**
+#### You can get CreatedAt and updatedAt timestamps by message instance
 
 ```js
 console.log(message.createdAt);
@@ -175,33 +192,69 @@ if (message.updatedAt) {
 
 return `timestamp` as you can easily format it using package like `moment` (for more formats)
 
-or by simply use ```Date``` Class
+or by simply use `Date` Class
+
 ```js
 var date = new Date(createdAt);
 // like: 4:01:50 AM
-console.log(date.toLocaleTimeString())
+console.log(date.toLocaleTimeString());
 // like: 10/16/2018
-console.log(date.toLocaleDateString())
+console.log(date.toLocaleDateString());
 // like: 110/16/2018, 4:01:50 AM
-console.log(date.toLocaleString())
+console.log(date.toLocaleString());
 ```
 
 > `createdAt` property available also in `ChatRoom` instance
 
 ---
+
+#### You can get also the chat room firebase reference(ref) and key. Like this :
+
+```js
+var reference = chatRoomOne.chatRoomRef;
+var key = chatRoomOne.chatRoomRef.key;
+```
+
+> as chatRoomOne is an instance of ChatRoom Class
+
+---
+
+#### Find chat by key (uid)
+
+> `static` function
+
+```js
+ChatRoom.findById("-LPK1Rr5mzwkuSDV9U9a", (err, chat) => {
+	if (!err) console.log(chat);
+});
+```
+
+call with **2** params
+
+1. `uid` chat unique id (key)
+2. `onComplete` callback function call after receiving all chats from firebase passing **2** params
+
+     1. `err` is the error message if the call failed
+     2. `chat` chat room (`ChatRoom` instance)
+
+---
+
 ## Tests
-Tests are using Jest, to run the tests add your config object in the test file and run:
+
+Tests are using Jest, to run the tests add your firebase config object in the test file and run:
+
 ```sh
 $ npm test
 ```
+
 ---
+
 ## Roadmap
+
 Check out our [roadmap](https://github.com/nezamio/firebase-chat-ready-api/projects/1) to get informed by the latest feature released and the upcoming ones. You can also give us insights and vote for a specific feature. And your are more than welcome to contribute.
 
 ---
->Note: You probably  should change the rules of the firbase to linked correctly 
 
+> Note: You probably should change the rules of the firbase to link it correctly
 
 **👀 see `examples.js`**
-
-

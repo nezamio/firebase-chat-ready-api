@@ -12,10 +12,10 @@ class MessageError extends Error {}
  */
 function initializeFirebase(configures) {
     // set configurations 
-    if (!_.isObjectLike(configures) )
+    if (!_.isObjectLike(configures))
         throw new InitializeAppError("The configures must be an object")
 
-    if (_.isEmpty(configures) )
+    if (_.isEmpty(configures))
         throw new InitializeAppError("The configures shouldn't be empty")
 
     // Initialize Firebase
@@ -185,6 +185,29 @@ class ChatRoom {
             action(newMessage)
         })
     }
+
+    /**
+     * get chat by firebase uid  
+     * @param {String} uid chat unique id
+     * @param {(err:Error,chatroom:ChatRoom)=>void} onSuccess Callback function call after receiving the chat room  or with err if not
+     */
+    static findById(uid, onSuccess) {
+        var chat = firebase.database().ref("ChatRooms").child(uid);
+        chat.once('value', (snapshot) => {
+            try {
+                var snap = snapshot.val();
+                if (snap === null) {
+                    return onSuccess("Chat not found!", undefined);
+                }
+                var newChat = new ChatRoom(snap.title, snap.members[0], snap.members[1], undefined, chat);
+                return onSuccess(undefined, newChat);
+            } catch (error) {
+                return onSuccess(error, undefined);
+            }
+
+        }, onSuccess)
+    }
+
 }
 
 /**  @class */
@@ -242,7 +265,7 @@ class Message {
         // check validation message body
         if (_.isEmpty(newBody) || !_.isString(newBody))
             throw new MessageError("Message should have body and be string")
-            
+
         this.updatedAt = Date.now()
         // update chat room title
         this.messageRef.update({
@@ -260,7 +283,7 @@ class Message {
         this.messageRef.remove(afterRemove);
         return this;
     }
-    
+
 }
 
 

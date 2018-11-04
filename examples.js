@@ -4,7 +4,7 @@ const {
 } = require("./index");
 
 const  config = {
-    // config keys...
+  // your firbase config keys ...
 };
 
 // initialize the app 
@@ -18,6 +18,8 @@ const userBId = "507f1f77bcf86fd799439011"
 
 var chatRoomOne = new ChatRoom("chat title", userAId, userBId, (err) => {
     console.log("chat room is created successfully");
+    console.log(chatRoomOne.chatRoomRef.key);
+    
 })
 
 // set new title for chat room  
@@ -67,4 +69,15 @@ ChatRoom.getUserChatRooms(userBId, (err, chats) => {
     } else {
         console.log(err);
     }
+})
+
+// find chat by key
+ChatRoom.findById("-LPK1Rr5mzwkuSDV9U9a",(err,chat)=>{
+    if (!err) { 
+        console.log(chat);
+    }else{
+        console.log(err);
+        
+    }
+    
 })

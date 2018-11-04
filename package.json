@@ -13,10 +13,13 @@
 		"chat room",
 		"realtime",
 		"manager",
-		"realtime-cha",
+		"realtime chat",
 		"chatting room",
 		"chatting",
-		"chat-manager"
+		"firebase chat",
+		"chat manager",
+		"chat api",
+		"firebase chat api"
 	],
 	"homepage": "https://github.com/nezamio/firebase-chat-ready-api#readme",
 	"bugs": {
