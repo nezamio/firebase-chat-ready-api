@@ -145,7 +145,7 @@ class ChatRoom {
         // check if the user exist 
         firebase().ref("UsersChat").once('value', function (snapshot) {
             if (!snapshot.hasChild(user))
-                throw new ChatRoomError("user not exist you not put him in any chat room ?")
+                return onComplete("User has no chat rooms",undefined)
         });
 
         // get data through firebase
