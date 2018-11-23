@@ -46,7 +46,11 @@ initializeFirebase({
 #### Create chat room between two users
 
 ```js
-var chatRoomOne = new ChatRoom("chat title", "user1233", "user1234", err => {
+// define users objects
+let userA = {userId: '1'} 
+let userB = {userId: '2'}
+// create chat room 
+let newchatRoom = new ChatRoom("chat title", userA, userB, err => {
 	if (!err) console.log(" chat room created successfully");
 });
 ```
@@ -54,26 +58,38 @@ var chatRoomOne = new ChatRoom("chat title", "user1233", "user1234", err => {
 This class take **5** params as initial values
 
 1. `title` the chat room title
-2. `userA` the one of the members "id" of the chat
-3. `userB` the other member "id"
+2. `userA` one of the chat room members. object of `{userId, username, photo}`
+3. `userB` second chat member. object of `{userId, username, photo}`
 4. `onComplete` it's a callback function called after the chat room created successfully in firebase
 5. `fromRef` create a class for chat room with it's firebase reference
 
 > Note: you can get created chat props also in the callback function through:
 >
 > ```js
-> var chatRoomOne = new ChatRoom("chat title", "user1233", "user1234", err => {
+> var newchatRoom = new ChatRoom("chat title", userA, userB, err => {
 > 	// get the chat key
-> 	if (!err) console.log(chatRoomOne.chatRoomRef.key);
+> 	if (!err) console.log(newchatRoom.chatRoomRef.key);
 > });
 > ```
 
+User Object is consists of 
+
+`userId`: the user unique id  *`required`*  
+`usename`: username for this user *`not required`*  
+`photo`: url image for this user *`not required`*
+
+> Note: you can get all of title, members with their props and createdAt bt simply user the chat instance 
+>```js
+> newchatRoom.members[0].username;
+> newchatRoom.ctreatedAt;
+> ...
+>``` 
 ---
 
 #### Change the chat title
 
 ```js
-chatRoomOne.setNewTitle("new title", title => {
+newchatRoom.setNewTitle("new title", title => {
 	console.log("the chat new title is " + title);
 });
 ```
@@ -90,7 +106,7 @@ This method is property of `ChatRoom` class. call with **2** params
 You can use the ChatRoom instances to send messages to it.
 
 ```js
-var message = chatRoomOne.sendMessage("Hi", userId, err => {
+var message = newchatRoom.sendMessage("Hi", userA, err => {
 	if (!err) console.log("message sent");
 });
 ```
@@ -98,7 +114,7 @@ var message = chatRoomOne.sendMessage("Hi", userId, err => {
 This method also member of `ChatRoom` class. with **3** params
 
 1. `body` string is the message body
-2. `from` represent the user how send the message
+2. `from` represent the user how send the message *could be user Id or the user object*
 3. `onComplete` callback after sending the message to the firbase
 
 this method is return `Message` instance
@@ -108,10 +124,10 @@ this method is return `Message` instance
 #### Get chat rooms related to user
 
 ```js
-ChatRoom.getUserChatRooms(userId, (err, chats) => {
+ChatRoom.getUserChatRooms(userB, (err, chats) => {
 	if (!err) console.log("Count of chats is :", chats.length);
 	chats.map(chat => {
-		console.log(chat.title);
+		console.log(chat.members[0].username);
 	});
 });
 ```
@@ -120,7 +136,7 @@ ChatRoom.getUserChatRooms(userId, (err, chats) => {
 
 call with **2** params
 
-1. `userId` as it's the user id
+1. `user` the user  *could be user Id or the user object*
 2. `onComplete` callback function call after receiving all chats from firebase passing **2** params
 
      1. `err` is the error message if the call failed
@@ -131,7 +147,7 @@ call with **2** params
 #### Get chat messages and listen for new messages comming
 
 ```js
-chatRoomOne.getMessagesAndListen(message => {
+newchatRoom.getMessagesAndListen(message => {
 	console.log(message.body);
 });
 ```
@@ -211,11 +227,11 @@ console.log(date.toLocaleString());
 #### You can get also the chat room firebase reference(ref) and key. Like this :
 
 ```js
-var reference = chatRoomOne.chatRoomRef;
-var key = chatRoomOne.chatRoomRef.key;
+var reference = newchatRoom.chatRoomRef;
+var key = newchatRoom.chatRoomRef.key;
 ```
 
-> as chatRoomOne is an instance of ChatRoom Class
+> as newchatRoom is an instance of ChatRoom Class
 
 ---
 

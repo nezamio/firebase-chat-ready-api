@@ -1,6 +1,6 @@
 {
 	"name": "@nezam/firebase-chat-ready-api",
-	"version": "1.1.0",
+	"version": "2.0.0",
 	"description": "Firebase-chat-ready-API is a simple package, enable fast connection to firebase realtime database to create chat manager API.",
 	"main": "index.js",
 	"scripts": {

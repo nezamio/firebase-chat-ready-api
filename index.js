@@ -1,4 +1,5 @@
-const firebase = require("firebase");
+const initializeApp = require("firebase").initializeApp;
+const firebase = require("firebase").database;
 const _ = require("lodash")
 
 // add new errors references
@@ -19,7 +20,7 @@ function initializeFirebase(configures) {
         throw new InitializeAppError("The configures shouldn't be empty")
 
     // Initialize Firebase
-    firebase.initializeApp(configures);
+    initializeApp(configures);
 }
 /**@class */
 class ChatRoom {
@@ -28,23 +29,37 @@ class ChatRoom {
      * create chat room between two users .
      * @constructor
      * @param {String} title  the title of this chat room.
-     * @param {String} userA  UserId one of the users in this chat room.
-     * @param {String } userB  UserId the second user in this chat room.
+     * @param {{userId:String, username:String, photo:String}} userA userId , username and photo of the users in this chat room.
+     * @param {{userId:String, username:String, photo:String}} userB userId , username and photo of the second user in this chat room.
      * @param {(err:Error)=>void} [onComplete] Callback function call after creating chat room or with err if not
      * @param {null} fromRef shouldn't be calld at all
      * @returns {ChatRoom} object contains all chat room properties  
      */
-    constructor(title, userA, userB, onComplete, fromRef) {
+    constructor(title, userA,userB, onComplete, fromRef) {
         // validate title string
         if (_.isEmpty(title) || !_.isString(title))
             throw new ChatRoomError("title should be not empty and be string");
         this.title = title
-
         //  validate users Ids strings 
-        if (_.isEmpty(userA) || _.isEmpty(userB) || !_.isString(userA) || !_.isString(userB))
-            throw new ChatRoomError("Users must be a string and not empty");
+        if (_.isEmpty( userA.userId) || _.isEmpty(userB.userId) || !_.isString( userA.userId) || !_.isString(userB.userId))
+            throw new ChatRoomError('Users must be a string and not empty ,your Object keys must be  {userId, username if any, photo if any} ');
 
-        this.members = [userA, userB];
+        if ((userA.username && !_.isString(userA.username)) || ( userB.username && !_.isString( userB.username)))
+            throw new ChatRoomError("User names should be strings");
+
+        if ((userA.photo && !_.isString(userA.photo)) || (userB.photo && !_.isString(userB.photo)))
+            throw new ChatRoomError("Photos should be strings");
+
+        this.members = [{
+            userId: userA.userId,
+            username: userA.username || '',
+            photo: userA.photo || '',
+        }, {
+            userId: userB.userId,
+            username:userB.username || '',
+            photo: userB.photo || ''
+        }];
+
         this.createdAt = Date.now()
         if (_.isEmpty(fromRef)) {
             this._sendTofirebase(onComplete)
@@ -61,7 +76,7 @@ class ChatRoom {
      */
     _sendTofirebase(onComplete) {
         // create chat room reference in firebase
-        this.chatRoomRef = firebase.database().ref('ChatRooms/').push({
+        this.chatRoomRef = firebase().ref('ChatRooms/').push({
             title: this.title,
             members: this.members,
             createdAt: this.createdAt
@@ -69,14 +84,14 @@ class ChatRoom {
 
         var chatKey = this.chatRoomRef.key
         // create user chat reference in firebase
-        this.UserChatRef = firebase.database().ref("UsersChat").child(this.members[0]).child(chatKey).set(chatKey, (err) => {
+        this.UserChatRef = firebase().ref("UsersChat").child(this.members[0].userId).child(chatKey).set(chatKey, (err) => {
             if (err) {
                 throw new ChatRoomError(err)
             }
         });
 
         // create user chat reference in firebase
-        this.UserChatRef = firebase.database().ref("UsersChat").child(this.members[1]).child(chatKey).set(chatKey, (err) => {
+        this.UserChatRef = firebase().ref("UsersChat").child(this.members[1].userId).child(chatKey).set(chatKey, (err) => {
             if (err) {
                 throw new ChatRoomError(err)
             }
@@ -114,19 +129,22 @@ class ChatRoom {
 
     /**
      * get all user chat rooms with his _id
-     * @param {String} userId
+     * @param {String|{userId:String}} user
      * @param {(err:Error,chats:ChatRoom[])=>void} onComplete Callback function call after receiving the chat rooms  or with err if not
      */
-    static getUserChatRooms(userId, onComplete) {
+    static getUserChatRooms(user, onComplete) {
         // check validation of the user id string
-        if (!_.isString(userId) || _.isEmpty(userId))
+        if (_.isEmpty(user))
             throw new ChatRoomError("userId should be string")
 
-        var userChatRoomsRef = firebase.database().ref("UsersChat").child(userId);
+        if (_.isObject(user)) {
+            user = user.userId;
+        }
+        var userChatRoomsRef = firebase().ref("UsersChat").child(user);
 
         // check if the user exist 
-        firebase.database().ref("UsersChat").once('value', function (snapshot) {
-            if (!snapshot.hasChild(userId))
+        firebase().ref("UsersChat").once('value', function (snapshot) {
+            if (!snapshot.hasChild(user))
                 throw new ChatRoomError("user not exist you not put him in any chat room ?")
         });
 
@@ -135,10 +153,21 @@ class ChatRoom {
             var list = []
             var chatsCount = chatSnapshot.numChildren()
             chatSnapshot.forEach((ch) => {
-                var chatRoomRef = firebase.database().ref("ChatRooms").child(ch.key)
+                var chatRoomRef = firebase().ref("ChatRooms").child(ch.key)
                 chatRoomRef.once("value", function (snapshot) {
                     var snap = snapshot.val()
-                    var newChat = new ChatRoom(snap.title, snap.members[0], snap.members[1], undefined, chatRoomRef)
+                    const userAFire = {
+                        userId: snap.members[0].userId,
+                        username: snap.members[0].username,
+                        photo: snap.members[0].photo
+                    }
+                    const userBFire = {
+                        userId: snap.members[1].userId,
+                        username: snap.members[1].username,
+                        photo: snap.members[1].photo
+                    }
+                    var newChat = new ChatRoom(snap.title, userAFire, userBFire, undefined, chatRoomRef)
+                    newChat.createdAt = snap.createdAt
                     list.push(newChat)
                     if (list.length == chatsCount) {
                         // passing list if all user chatrooms ChatRoom instance 
@@ -182,6 +211,7 @@ class ChatRoom {
             var messageRef = this.chatRoomRef.child("messages").child(snapshot.key);
             var message = snapshot.toJSON();
             var newMessage = new Message(message.body, message.from, this, undefined, messageRef)
+            newMessage.createdAt = message.createdAt
             action(newMessage)
         })
     }
@@ -192,14 +222,24 @@ class ChatRoom {
      * @param {(err:Error,chatroom:ChatRoom)=>void} onSuccess Callback function call after receiving the chat room  or with err if not
      */
     static findById(uid, onSuccess) {
-        var chat = firebase.database().ref("ChatRooms").child(uid);
+        var chat = firebase().ref("ChatRooms").child(uid);
         chat.once('value', (snapshot) => {
             try {
                 var snap = snapshot.val();
                 if (snap === null) {
                     return onSuccess("Chat not found!", undefined);
                 }
-                var newChat = new ChatRoom(snap.title, snap.members[0], snap.members[1], undefined, chat);
+                const userAFire = {
+                    userId: snap.members[0].userId,
+                    username: snap.members[0].username,
+                    photo: snap.members[0].photo
+                }
+                const userBFire = {
+                    userId: snap.members[1].userId,
+                    username: snap.members[1].username,
+                    photo: snap.members[1].photo
+                }
+                var newChat = new ChatRoom(snap.title, userAFire, userBFire, undefined, chatRoomRef)
                 return onSuccess(undefined, newChat);
             } catch (error) {
                 return onSuccess(error, undefined);
@@ -215,7 +255,7 @@ class Message {
     /**
      * @constructor
      * @param {String} body String: the message body (message it self)
-     * @param {String} from String: the id of the user sent this message
+     * @param {String|{userId:String}} from String: the id of the user sent this message
      * @param  {ChatRoom} chatRoom ChatRoom: refrance to the chat room this message in
      * @param {(err:Error)=>void} [onComplete] Callback function call after changing chat room title or with err if not     * 
      * @returns {Message} Message that has been created 
@@ -228,14 +268,22 @@ class Message {
         this.body = body
 
         // check validation of the user id string
-        if (!_.isString(from) || _.isEmpty(from))
-            throw new MessageError("From should be a string")
+        if (_.isEmpty(from))
+            throw new MessageError("From should be not empty")
 
         // check if the user in this chat room 
-        if (!chatRoom.members.includes(from))
-            throw new MessageError("this 'from' user must be in this chat room")
+        if ((_.isString(from) && chatRoom.members[0].userId !== from) && (_.isString(from) && chatRoom.members[1].userId !== from) )
+            throw new MessageError(" 'from' user must be in this chat room")
 
-        this.from = from;
+        // check if the user in this chat room 
+        if ((_.isObject(from) && chatRoom.members[0].userId !== from.userId) && (_.isObject(from) && chatRoom.members[1].userId !== from.userId) )
+            throw new MessageError(" 'from' user must be in this chat room")
+
+        if (_.isString(from)){
+            this.from = from;
+        }else{
+            this.from = from.userId;
+        }
 
         if (!chatRoom instanceof ChatRoom)
             throw new MessageError("chatRoom should be instance of ChatRoom class")
@@ -245,7 +293,7 @@ class Message {
 
         if (_.isEmpty(fromRef)) {
 
-            this.messageRef = firebase.database().ref(chatRoom.chatRoomRef).child("messages").push({
+            this.messageRef = firebase().ref(chatRoom.chatRoomRef).child("messages").push({
                 body: this.body,
                 from: this.from,
                 createdAt: this.createdAt,

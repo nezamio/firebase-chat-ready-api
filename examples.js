@@ -3,34 +3,40 @@ const {
     ChatRoom
 } = require("./index");
 
-const  config = {
-  // your firbase config keys ...
+const config = {
+   // Your firebase config...
+
 };
 
 // initialize the app 
 initializeFirebase(config);
 
 // valid user _ids
-const userAId = "507f1f77bcf86cd799439011"
-const userBId = "507f1f77bcf86fd799439011"
+const userA = {
+    userId: '507f1f77bcf86fd799439015'
+}
+const userB = {
+    userId: '507f1f77bcf86fd79943906',
+    username: "abanob",
+    photo: "abanob Pic"
+}
 
 //create chat room
-
-var chatRoomOne = new ChatRoom("chat title", userAId, userBId, (err) => {
+var chatRoomOne = new ChatRoom("chat title", userA, userB, (err) => {
     console.log("chat room is created successfully");
     console.log(chatRoomOne.chatRoomRef.key);
-    
+
 })
 
 // set new title for chat room  
-chatRoomOne.setNewTitle("new chat titel", (title) => {
+chatRoomOne.setNewTitle("new chat title", (title) => {
 
     console.log("the chat new title is " + title);
 
 })
 
 // sending message
-var message = chatRoomOne.sendMessage("Hi", userBId, (err) => {
+var message = chatRoomOne.sendMessage("Hi", userB.userId, (err) => {
     if (err) {
         console.log(err);
 
@@ -42,7 +48,7 @@ var message = chatRoomOne.sendMessage("Hi", userBId, (err) => {
 
 // get chat room messages 
 chatRoomOne.getMessagesAndListen((message) => {
-    console.log("message: ", message.body);
+    console.log("message: ", message.createdAt);
 })
 
 
@@ -52,19 +58,16 @@ message.updateBody("new message", (newBody) => {
 
 })
 
-// remove message
-var remMessage = message.remove(() => {
-    console.log("message removed ");
-})
+
 
 // get user chats
 
-ChatRoom.getUserChatRooms(userBId, (err, chats) => {
+ChatRoom.getUserChatRooms(userB.userId, (err, chats) => {
     if (!err) {
         console.log("all user chat rooms ");
         console.log("Count of chats is :", chats.length);
         chats.map((chatRoom) => {
-            console.log("chat title : ",chatRoom.title);
+            console.log("chat title : ", chatRoom.title);
         })
     } else {
         console.log(err);
@@ -72,12 +75,12 @@ ChatRoom.getUserChatRooms(userBId, (err, chats) => {
 })
 
 // find chat by key
-ChatRoom.findById("-LPK1Rr5mzwkuSDV9U9a",(err,chat)=>{
-    if (!err) { 
-        console.log(chat);
-    }else{
+ChatRoom.findById("-LRy9VpXnrbk13zMzABo", (err, chat) => {
+    if (!err) {
+        console.log(chat.members);
+    } else {
         console.log(err);
-        
+
     }
-    
+
 })
