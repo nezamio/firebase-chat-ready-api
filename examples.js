@@ -5,7 +5,6 @@ const {
 
 const config = {
    // Your firebase config...
-
 };
 
 // initialize the app 

@@ -239,7 +239,7 @@ class ChatRoom {
                     username: snap.members[1].username,
                     photo: snap.members[1].photo
                 }
-                var newChat = new ChatRoom(snap.title, userAFire, userBFire, undefined, chatRoomRef)
+                var newChat = new ChatRoom(snap.title, userAFire, userBFire, undefined, chat)
                 return onSuccess(undefined, newChat);
             } catch (error) {
                 return onSuccess(error, undefined);
