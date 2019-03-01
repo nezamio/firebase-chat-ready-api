@@ -35,16 +35,16 @@ class ChatRoom {
      * @param {null} fromRef shouldn't be calld at all
      * @returns {ChatRoom} object contains all chat room properties  
      */
-    constructor(title, userA,userB, onComplete, fromRef) {
+    constructor(title, userA, userB, onComplete, fromRef) {
         // validate title string
         if (_.isEmpty(title) || !_.isString(title))
             throw new ChatRoomError("title should be not empty and be string");
         this.title = title
         //  validate users Ids strings 
-        if (_.isEmpty( userA.userId) || _.isEmpty(userB.userId) || !_.isString( userA.userId) || !_.isString(userB.userId))
+        if (_.isEmpty(userA.userId) || _.isEmpty(userB.userId) || !_.isString(userA.userId) || !_.isString(userB.userId))
             throw new ChatRoomError('Users must be a string and not empty ,your Object keys must be  {userId, username if any, photo if any} ');
 
-        if ((userA.username && !_.isString(userA.username)) || ( userB.username && !_.isString( userB.username)))
+        if ((userA.username && !_.isString(userA.username)) || (userB.username && !_.isString(userB.username)))
             throw new ChatRoomError("User names should be strings");
 
         if ((userA.photo && !_.isString(userA.photo)) || (userB.photo && !_.isString(userB.photo)))
@@ -56,11 +56,12 @@ class ChatRoom {
             photo: userA.photo || '',
         }, {
             userId: userB.userId,
-            username:userB.username || '',
+            username: userB.username || '',
             photo: userB.photo || ''
         }];
 
         this.createdAt = Date.now()
+        this.isRemoved = false;
         if (_.isEmpty(fromRef)) {
             this._sendTofirebase(onComplete)
         } else {
@@ -79,7 +80,8 @@ class ChatRoom {
         this.chatRoomRef = firebase().ref('ChatRooms/').push({
             title: this.title,
             members: this.members,
-            createdAt: this.createdAt
+            createdAt: this.createdAt,
+            isRemoved: this.isRemoved,
         }, onComplete);
 
         var chatKey = this.chatRoomRef.key
@@ -116,6 +118,23 @@ class ChatRoom {
     }
 
     /**
+     * remove chat room 
+     * @param {Boolean} softRemove  set falg to chat room to marked it as removed 
+     * @param {(err:Error)=>void}  [onComplete] Callback function call after remove
+     */
+    remove(softRemove = false, onComplete) {
+        if (softRemove) {
+            // update chat room isRemoved flag
+            this.chatRoomRef.update({
+                isRemoved: true,
+            }, onComplete);
+            return this;
+        }
+        this.chatRoomRef.remove(onComplete);
+        return this;
+    }
+
+    /**
      * send message in this chat room 
      * @param  {String} body the message body (message it self)
      * @param  {String} from the id of the user sent this message
@@ -145,7 +164,7 @@ class ChatRoom {
         // check if the user exist 
         firebase().ref("UsersChat").once('value', function (snapshot) {
             if (!snapshot.hasChild(user))
-                return onComplete("User has no chat rooms",undefined)
+                return onComplete("User has no chat rooms", undefined)
         });
 
         // get data through firebase
@@ -272,16 +291,16 @@ class Message {
             throw new MessageError("From should be not empty")
 
         // check if the user in this chat room 
-        if ((_.isString(from) && chatRoom.members[0].userId !== from) && (_.isString(from) && chatRoom.members[1].userId !== from) )
+        if ((_.isString(from) && chatRoom.members[0].userId !== from) && (_.isString(from) && chatRoom.members[1].userId !== from))
             throw new MessageError(" 'from' user must be in this chat room")
 
         // check if the user in this chat room 
-        if ((_.isObject(from) && chatRoom.members[0].userId !== from.userId) && (_.isObject(from) && chatRoom.members[1].userId !== from.userId) )
+        if ((_.isObject(from) && chatRoom.members[0].userId !== from.userId) && (_.isObject(from) && chatRoom.members[1].userId !== from.userId))
             throw new MessageError(" 'from' user must be in this chat room")
 
-        if (_.isString(from)){
+        if (_.isString(from)) {
             this.from = from;
-        }else{
+        } else {
             this.from = from.userId;
         }
 

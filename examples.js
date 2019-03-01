@@ -12,12 +12,12 @@ initializeFirebase(config);
 
 // valid user _ids
 const userA = {
-    userId: '507f1f77bcf86fd799439015'
+    userId: '$ABC'
 }
 const userB = {
-    userId: '507f1f77bcf86fd79943906',
-    username: "abanob",
-    photo: "abanob Pic"
+    userId: '#DFG',
+    username: "userB",
+    photo: "Pic URL ... "
 }
 
 //create chat room
@@ -27,11 +27,16 @@ var chatRoomOne = new ChatRoom("chat title", userA, userB, (err) => {
 
 })
 
+/*
+// remove chat room
+chatRoomOne.remove(true, (err) => {
+    if(!err) console.log("chat room removed successfully ");
+})
+*/
+
 // set new title for chat room  
 chatRoomOne.setNewTitle("new chat title", (title) => {
-
     console.log("the chat new title is " + title);
-
 })
 
 // sending message

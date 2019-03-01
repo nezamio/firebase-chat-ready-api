@@ -101,6 +101,19 @@ This method is property of `ChatRoom` class. call with **2** params
 
 ---
 
+#### Remove chat room
+
+```js
+newchatRoom.remove();
+```
+
+This method is property of `ChatRoom` class. call with **2** params
+
+1. `softRemove` set flag `isRemoved` to `true`
+2. `onComplete` callback after removing the chat room
+
+---
+
 #### Send message in this chat room
 
 You can use the ChatRoom instances to send messages to it.
