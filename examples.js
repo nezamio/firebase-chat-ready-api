@@ -12,10 +12,10 @@ initializeFirebase(config);
 
 // valid user _ids
 const userA = {
-    userId: '$ABC'
+    userId: 'ABC'
 }
 const userB = {
-    userId: '#DFG',
+    userId: 'DFG',
     username: "userB",
     photo: "Pic URL ... "
 }

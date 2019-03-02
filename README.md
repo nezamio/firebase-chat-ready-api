@@ -111,6 +111,19 @@ This method is property of `ChatRoom` class. call with **2** params
 
 1. `softRemove` set flag `isRemoved` to `true`
 2. `onComplete` callback after removing the chat room
+---
+
+#### Remove mutual chat rooms  between two users
+
+```js
+ChatRoom.removeMutualChatRooms('userA Id', 'userB Id);
+```
+
+This method `static` function  call with **2** params
+
+1. `userA` The id of the user A
+1. `userB` The id of the user B
+1. `softRemove` set flag `isRemoved` to `true`
 
 ---
 

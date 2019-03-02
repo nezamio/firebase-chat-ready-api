@@ -133,6 +133,31 @@ class ChatRoom {
         this.chatRoomRef.remove(onComplete);
         return this;
     }
+    /**
+     * remove mutual chat rooms  between two users
+     * @param {String} userA  set falg to chat room to marked it as removed 
+     * @param {String} userB  set falg to chat room to marked it as removed 
+     * @param {Boolean} softRemove  set falg to chat room to marked it as removed 
+     * @param {(err:Error)=>void}  [onComplete] Callback function call after remove
+     */
+    static async removeMutualChatRooms(userA, userB, softRemove = false) {
+        // get user A chat keys
+        var userARef = await firebase().ref("UsersChat").child(userA).once('value');
+        var userBRef = await firebase().ref("UsersChat").child(userB).once('value');
+        const userAChats = Object.keys(userARef.val());
+        userBRef.forEach(chat => {
+            const chatKey = chat.key;
+            var chatRoomRef = firebase().ref("ChatRooms").child(chatKey)
+            if (userAChats.includes(chatKey)) {
+                if (softRemove) {
+                    // update chat room isRemoved flag
+                    chatRoomRef.update({
+                        isRemoved: true,
+                    });
+                } else chatRoomRef.remove();
+            }
+        })
+    }
 
     /**
      * send message in this chat room 
