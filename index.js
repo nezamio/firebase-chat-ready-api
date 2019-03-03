@@ -144,11 +144,11 @@ class ChatRoom {
         // get user A chat keys
         var userARef = await firebase().ref("UsersChat").child(userA).once('value');
         var userBRef = await firebase().ref("UsersChat").child(userB).once('value');
-        const userAChats = Object.keys(userARef.val());
+        const userAChats = userARef.val() && Object.keys(userARef.val());
         userBRef.forEach(chat => {
             const chatKey = chat.key;
             var chatRoomRef = firebase().ref("ChatRooms").child(chatKey)
-            if (userAChats.includes(chatKey)) {
+            if (chatRoomRef && userAChats.includes(chatKey)) {
                 if (softRemove) {
                     // update chat room isRemoved flag
                     chatRoomRef.update({
