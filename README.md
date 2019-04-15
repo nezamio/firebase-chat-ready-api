@@ -150,7 +150,7 @@ this method is return `Message` instance
 #### Get chat rooms related to user
 
 ```js
-ChatRoom.getUserChatRooms(userB, (err, chats) => {
+ChatRoom.getUserChatRooms(userB, {start:5, limit:10}, (err, chats) => {
 	if (!err) console.log("Count of chats is :", chats.length);
 	chats.map(chat => {
 		console.log(chat.members[0].username);
@@ -160,20 +160,39 @@ ChatRoom.getUserChatRooms(userB, (err, chats) => {
 
 > Note: This method is a `static` function
 
-call with **2** params
+call with **3** params
 
 1. `user` the user  *could be user Id or the user object*
-2. `onComplete` callback function call after receiving all chats from firebase passing **2** params
+2. `pagination`  paginate the returned chat rooms *Optional* **Object with** {start: *Number*, limit: *Number*}
+3. `onComplete` callback function call after receiving all chats from firebase passing **2** params
 
      1. `err` is the error message if the call failed
      2. `chats` it's an array ( List ) of all the user chat room (`ChatRoom` instances)
 
 ---
 
-#### Get chat messages and listen for new messages comming
+#### Get messages
 
 ```js
-newchatRoom.getMessagesAndListen(message => {
+newchatRoom.getMessages({start: 2, limit: 10}, message => {
+	console.log(message.body);
+});
+```
+
+call **2** params
+1. `pagination`  paginate the returned messages *Optional* **Object with** {start: *Number*, limit: *Number*}
+
+2. `action` callback after receiving all messages
+
+     > Note : the massages come one after one not in list
+     >
+     > This function fires after getting new message
+
+---
+#### Listen for new messages coming
+
+```js
+newchatRoom.listenNewMessges( message => {
 	console.log(message.body);
 });
 ```

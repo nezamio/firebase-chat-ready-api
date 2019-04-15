@@ -27,12 +27,12 @@ var chatRoomOne = new ChatRoom("chat title", userA, userB, (err) => {
 
 })
 
-/*
+
 // remove chat room
 chatRoomOne.remove(true, (err) => {
     if(!err) console.log("chat room removed successfully ");
 })
-*/
+
 
 // set new title for chat room  
 chatRoomOne.setNewTitle("new chat title", (title) => {
@@ -51,7 +51,13 @@ var message = chatRoomOne.sendMessage("Hi", userB.userId, (err) => {
 
 
 // get chat room messages 
-chatRoomOne.getMessagesAndListen((message) => {
+chatRoomOne.getMessages({start:1, limit:10},(message) => {
+    console.log("message: ", message.createdAt);
+})
+
+
+// listen to new message
+chatRoomOne.listenNewMessges((message) => {
     console.log("message: ", message.createdAt);
 })
 

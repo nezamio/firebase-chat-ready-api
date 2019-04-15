@@ -174,23 +174,46 @@ class ChatRoom {
     /**
      * get all user chat rooms with his _id
      * @param {String|{userId:String}} user
+     * @param {Object} [pagination] get messages paginated 
+     * @param {Number} pagination.start The number of the stating chat room
+     * @param {Number}  pagination.limit The number of the returned chat rooms 
      * @param {(err:Error,chats:ChatRoom[])=>void} onComplete Callback function call after receiving the chat rooms  or with err if not
      */
-    static getUserChatRooms(user, onComplete) {
-        // check validation of the user id string
+    static async getUserChatRooms(user, pagination, onComplete) {
+        let start = pagination && pagination.start
+        let limit = pagination && pagination.limit
+
+        if(_.isFunction(pagination) && _.isUndefined(onComplete)){
+            onComplete = pagination
+            pagination = undefined;
+        }
+
+        if (pagination && ( !_.isNumber(start) || !_.isNumber(limit) )){
+            throw new ChatRoomError('pagination expected a start and limit properties as a numbers')
+        }
+
         if (_.isEmpty(user))
             throw new ChatRoomError("userId should be string")
 
         if (_.isObject(user)) {
             user = user.userId;
         }
-        var userChatRoomsRef = firebase().ref("UsersChat").child(user);
-
+       
         // check if the user exist 
         firebase().ref("UsersChat").once('value', function (snapshot) {
             if (!snapshot.hasChild(user))
                 return onComplete("User has no chat rooms", undefined)
         });
+
+        let userChatRoomsRef = firebase().ref("UsersChat").child(user);
+        // paginated chat rooms
+        if (!_.isEmpty(pagination)) {
+            const allChats = await firebase().ref("UsersChat").child(user).limitToFirst(start).once('value');
+            const lastChat = Object.keys(allChats.val()).reverse()[0];
+            userChatRoomsRef = firebase().ref("UsersChat").child(user)
+                                .startAt(null,lastChat)
+                                .limitToFirst(limit);
+        }
 
         // get data through firebase
         userChatRoomsRef.once("value", function (chatSnapshot) {
@@ -212,6 +235,7 @@ class ChatRoom {
                     }
                     var newChat = new ChatRoom(snap.title, userAFire, userBFire, undefined, chatRoomRef)
                     newChat.createdAt = snap.createdAt
+                    newChat.isRemoved = snap.isRemoved || false;
                     list.push(newChat)
                     if (list.length == chatsCount) {
                         // passing list if all user chatrooms ChatRoom instance 
@@ -222,36 +246,52 @@ class ChatRoom {
         }, onComplete);
     }
 
-    // TODO: should remove this function as it redundant to getMessagesAndListen
     /**
-     * Edit you should not use this function instead use getMessagesAndListen
-     * get all the messages related to this chat room
-     * get message by message
-     * 
-     * @param {Function} onComplete callback after receive each message
+     * Get all messages of this chat room
+     * @param {Object} [pagination] get messages paginated 
+     * @param {Number} pagination.start The number of the stating message
+     * @param {Number}  pagination.limit The number of the returned messages 
+     * @param {(messages:Message)=>void} action that should happen when receiving this message
      */
-    getAllMessages(onComplete) {
-        // ! remove this error to make it work
-        throw new ChatRoomError("You should not use this method use getMessagesAndListen instead ");
+    async getMessages(pagination, action){
+        let start = pagination && pagination.start
+        let limit = pagination && pagination.limit
 
-        // ?  working ? 
-        this.chatRoomRef.child("messages").once("value", (messagesSnapshot) => {
-            messagesSnapshot.forEach((message) => {
-                var messageRef = this.chatRoomRef.child("messages").child(message.key);
-                var message = message.toJSON()
-                var newMessage = new Message(message.body, message.from, this, undefined, messageRef)
-                onComplete(undefined, newMessage)
-            })
-        }, onComplete)
+        if(_.isFunction(pagination) && _.isUndefined(action)){
+            action = pagination
+            pagination = undefined;
+        }
+
+        if(pagination && (!_.isNumber(start) || !_.isNumber(limit)) ){
+            throw new ChatRoomError('pagination expected a start and limit properties as a numbers')
+        }
+
+        let messagesRef= this.chatRoomRef.child("messages");
+
+        if (!_.isEmpty(pagination)) {
+            const allMessages = await this.chatRoomRef.child("messages").limitToLast(start).once('value');
+            const lastMessage = Object.keys(allMessages.val())[0];
+            messagesRef = this.chatRoomRef.child("messages").endAt(null,lastMessage).limitToLast(limit);
+        }
+
+        messagesRef.once("value", (snapshot) => {
+           snapshot.forEach(snap =>{
+                var message = snap.val();
+                var newMessage = new Message(message.body, message.from, this, undefined, snap)
+                newMessage.createdAt = message.createdAt
+                action(newMessage)
+           })
+        })
+
     }
 
     /**
-     * get all messages and listen to new messages 
+     * Listen to new messages 
      * make an action when received a new mesage
      * @param {(newMessage:Message)=>void} action that should happen when receiving this message
      */
-    getMessagesAndListen(action) {
-        this.chatRoomRef.child("messages").on("child_added", (snapshot, prevChildKey) => {
+    listenNewMessges(action) {
+        this.chatRoomRef.child("messages").limitToLast(1).on("child_added", (snapshot, prevChildKey) => {
             var messageRef = this.chatRoomRef.child("messages").child(snapshot.key);
             var message = snapshot.toJSON();
             var newMessage = new Message(message.body, message.from, this, undefined, messageRef)
