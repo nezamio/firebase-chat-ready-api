@@ -116,7 +116,7 @@ This method is property of `ChatRoom` class. call with **2** params
 #### Remove mutual chat rooms  between two users
 
 ```js
-ChatRoom.removeMutualChatRooms('userA Id', 'userB Id);
+ChatRoom.removeMutualChatRooms('userA Id', 'userB Id');
 ```
 
 This method `static` function  call with **2** params
@@ -163,7 +163,7 @@ ChatRoom.getUserChatRooms(userB, {start:5, limit:10}, (err, chats) => {
 call with **3** params
 
 1. `user` the user  *could be user Id or the user object*
-2. `pagination`  paginate the returned chat rooms *Optional* **Object with** {start: *Number*, limit: *Number*}
+2. `pagination`  paginate the returned chat rooms *Optional*  `{start: *Number*, limit: *Number*}`
 3. `onComplete` callback function call after receiving all chats from firebase passing **2** params
 
      1. `err` is the error message if the call failed
@@ -180,14 +180,12 @@ newchatRoom.getMessages({start: 2, limit: 10}, message => {
 ```
 
 call **2** params
-1. `pagination`  paginate the returned messages *Optional* **Object with** {start: *Number*, limit: *Number*}
+1. `pagination`  paginate the returned messages *Optional*  `{start: *Number*, limit: *Number*}`
 
 2. `action` callback after receiving all messages
 
      > Note : the massages come one after one not in list
-     >
-     > This function fires after getting new message
-
+		 > Fires only once
 ---
 #### Listen for new messages coming
 
@@ -202,7 +200,6 @@ call **1** params
 1. `action` callback function is the action that should happen when receiving a message
 
      > Note : the massages come one after one not in list
-     >
      > This function fires after getting new message
 
 ---
