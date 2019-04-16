@@ -208,7 +208,13 @@ class ChatRoom {
         let userChatRoomsRef = firebase().ref("UsersChat").child(user);
         // paginated chat rooms
         if (!_.isEmpty(pagination)) {
-            const allChats = await firebase().ref("UsersChat").child(user).limitToLast(start).once('value');
+            let allChats = await firebase().ref("UsersChat").child(user).once('value');
+            // check if the start is > number of messages
+            if (allChats.numChildren() >= start){
+                allChats = await allChats.ref.limitToLast(start).once("value");
+            } else {
+                return onComplete(undefined, []);
+            }
             const lastChat = Object.keys(allChats.val())[0];
             userChatRoomsRef = firebase().ref("UsersChat").child(user)
                                 .endAt(null,lastChat)
@@ -269,8 +275,14 @@ class ChatRoom {
         let messagesRef= this.chatRoomRef.child("messages");
 
         if (!_.isEmpty(pagination)) {
-            const allMessages = await this.chatRoomRef.child("messages").limitToLast(start).once('value');
-            const lastMessage = Object.keys(allMessages.val() || {})[0];
+            let allMessagesRef = await this.chatRoomRef.child("messages").once('value');
+            // check if the start is > number of messages
+            if (allMessagesRef.numChildren() >= start){
+                allMessagesRef = await allMessagesRef.ref.limitToLast(start).once("value");
+            } else {
+                return  action([]);
+            }
+            const lastMessage = Object.keys(allMessagesRef.val() || {})[0];
             messagesRef = this.chatRoomRef.child("messages").endAt(null,lastMessage).limitToLast(limit);
         }
         let list = []
