@@ -208,11 +208,11 @@ class ChatRoom {
         let userChatRoomsRef = firebase().ref("UsersChat").child(user);
         // paginated chat rooms
         if (!_.isEmpty(pagination)) {
-            const allChats = await firebase().ref("UsersChat").child(user).limitToFirst(start).once('value');
-            const lastChat = Object.keys(allChats.val()).reverse()[0];
+            const allChats = await firebase().ref("UsersChat").child(user).limitToLast(start).once('value');
+            const lastChat = Object.keys(allChats.val())[0];
             userChatRoomsRef = firebase().ref("UsersChat").child(user)
-                                .startAt(null,lastChat)
-                                .limitToFirst(limit);
+                                .endAt(null,lastChat)
+                                .limitToLast(limit);
         }
 
         // get data through firebase
@@ -239,7 +239,7 @@ class ChatRoom {
                     list.push(newChat)
                     if (list.length == chatsCount) {
                         // passing list if all user chatrooms ChatRoom instance 
-                        onComplete(undefined, list)
+                        onComplete(undefined, list.reverse())
                     }
                 }, onComplete);
             })
@@ -251,7 +251,7 @@ class ChatRoom {
      * @param {Object} [pagination] get messages paginated 
      * @param {Number} pagination.start The number of the stating message
      * @param {Number}  pagination.limit The number of the returned messages 
-     * @param {(messages:Message)=>void} action that should happen when receiving this message
+     * @param {(messagesList:Message[])=>void} action that should happen when receiving this message
      */
     async getMessages(pagination, action){
         let start = pagination && pagination.start
@@ -273,15 +273,17 @@ class ChatRoom {
             const lastMessage = Object.keys(allMessages.val())[0];
             messagesRef = this.chatRoomRef.child("messages").endAt(null,lastMessage).limitToLast(limit);
         }
-
-        messagesRef.once("value", (snapshot) => {
+        let list = []
+        await messagesRef.once("value", (snapshot) => {
            snapshot.forEach(snap =>{
                 var message = snap.val();
                 var newMessage = new Message(message.body, message.from, this, undefined, snap)
                 newMessage.createdAt = message.createdAt
-                action(newMessage)
+                list.push(newMessage)
            })
         })
+
+        action(list)
 
     }
 

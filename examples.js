@@ -51,8 +51,10 @@ var message = chatRoomOne.sendMessage("Hi", userB.userId, (err) => {
 
 
 // get chat room messages 
-chatRoomOne.getMessages({start:1, limit:10},(message) => {
-    console.log("message: ", message.createdAt);
+chatRoomOne.getMessages({start:1, limit:10},(allMessages) => {
+    allMessages.map(m=>{
+        console.log("message: ", message.createdAt);
+    })
 })
 
 

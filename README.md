@@ -174,8 +174,10 @@ call with **3** params
 #### Get messages
 
 ```js
-newchatRoom.getMessages({start: 2, limit: 10}, message => {
-	console.log(message.body);
+newchatRoom.getMessages({start: 2, limit: 10}, messageList => {
+	messageList.map(m =>{
+		console.log(m.body);
+	})
 });
 ```
 
@@ -184,7 +186,8 @@ call **2** params
 
 2. `action` callback after receiving all messages
 
-     > Note : the massages come one after one not in list
+     > Note : the massages come in list
+		 >
 		 > Fires only once
 ---
 #### Listen for new messages coming
@@ -200,6 +203,7 @@ call **1** params
 1. `action` callback function is the action that should happen when receiving a message
 
      > Note : the massages come one after one not in list
+		 >
      > This function fires after getting new message
 
 ---
