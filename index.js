@@ -270,7 +270,7 @@ class ChatRoom {
 
         if (!_.isEmpty(pagination)) {
             const allMessages = await this.chatRoomRef.child("messages").limitToLast(start).once('value');
-            const lastMessage = Object.keys(allMessages.val())[0];
+            const lastMessage = Object.keys(allMessages.val() || {})[0];
             messagesRef = this.chatRoomRef.child("messages").endAt(null,lastMessage).limitToLast(limit);
         }
         let list = []
