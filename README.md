@@ -160,6 +160,8 @@ ChatRoom.getUserChatRooms(userB, {start:5, limit:10}, (err, chats) => {
 
 > Note: This method is a `static` function
 
+> Chat rooms is ordered by last modified ones
+
 call with **3** params
 
 1. `user` the user  *could be user Id or the user object*

@@ -86,14 +86,14 @@ class ChatRoom {
 
         var chatKey = this.chatRoomRef.key
         // create user chat reference in firebase
-        this.UserChatRef = firebase().ref("UsersChat").child(this.members[0].userId).child(chatKey).set(chatKey, (err) => {
+        this.UserChatRef = firebase().ref("UsersChat").child(this.members[0].userId).child(chatKey).set({"lastModified":Date.now()}, (err) => {
             if (err) {
                 throw new ChatRoomError(err)
             }
         });
 
         // create user chat reference in firebase
-        this.UserChatRef = firebase().ref("UsersChat").child(this.members[1].userId).child(chatKey).set(chatKey, (err) => {
+        this.UserChatRef = firebase().ref("UsersChat").child(this.members[1].userId).child(chatKey).set({"lastModified":Date.now()}, (err) => {
             if (err) {
                 throw new ChatRoomError(err)
             }
@@ -159,6 +159,24 @@ class ChatRoom {
         })
     }
 
+    _updateLastModified(){
+        firebase().ref("UsersChat")
+        .child(this.members[0].userId)
+        .child(this.chatRoomRef.key)
+        .update({"lastModified":Date.now()}, (err) => {
+            if (err) {
+                throw new ChatRoomError(err)
+            }
+        });
+        firebase().ref("UsersChat")
+        .child(this.members[1].userId)
+        .child(this.chatRoomRef.key)
+        .update({"lastModified":Date.now()}, (err) => {
+            if (err) {
+                throw new ChatRoomError(err)
+            }
+        });
+    }
     /**
      * send message in this chat room 
      * @param  {String} body the message body (message it self)
@@ -168,6 +186,7 @@ class ChatRoom {
      * 
      */
     sendMessage(body, from, onComplete) {
+        this._updateLastModified();
         return new Message(body, from, this, onComplete);
     }
 
@@ -222,7 +241,7 @@ class ChatRoom {
         }
 
         // get data through firebase
-        userChatRoomsRef.once("value", function (chatSnapshot) {
+        userChatRoomsRef.orderByChild('lastModified').once("value", function (chatSnapshot) {
             var list = []
             var chatsCount = chatSnapshot.numChildren()
             chatSnapshot.forEach((ch) => {
