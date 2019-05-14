@@ -162,6 +162,15 @@ ChatRoom.getUserChatRooms(userB, {start:5, limit:10}, (err, chats) => {
 
 > Chat rooms is ordered by last modified ones
 
+> Please add this `rule` in your project rules
+```js
+ "UsersChat": {
+	"$userId":{
+	".indexOn": "lastModified"
+	}
+}
+```
+
 call with **3** params
 
 1. `user` the user  *could be user Id or the user object*

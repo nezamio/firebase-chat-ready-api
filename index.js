@@ -148,7 +148,7 @@ class ChatRoom {
         userBRef.forEach(chat => {
             const chatKey = chat.key;
             var chatRoomRef = firebase().ref("ChatRooms").child(chatKey)
-            if (chatRoomRef && userAChats.includes(chatKey)) {
+            if (chatRoomRef && userAChats && userAChats.includes(chatKey)) {
                 if (softRemove) {
                     // update chat room isRemoved flag
                     chatRoomRef.update({
@@ -224,24 +224,35 @@ class ChatRoom {
                 return onComplete("User has no chat rooms", undefined)
         });
 
-        let userChatRoomsRef = firebase().ref("UsersChat").child(user);
+        let userChatRoomsRef = firebase().ref("UsersChat").child(user).orderByChild('lastModified');
         // paginated chat rooms
         if (!_.isEmpty(pagination)) {
-            let allChats = await firebase().ref("UsersChat").child(user).once('value');
+            let allChats = await firebase().ref("UsersChat")
+                                .child(user) 
+                                .once('value');
             // check if the start is > number of messages
+            let sortedList = []
             if (allChats.numChildren() >= start){
-                allChats = await allChats.ref.limitToLast(start).once("value");
+                allChats = await allChats.ref
+                .orderByChild('lastModified')
+                .limitToLast(start).once("value",  (snap)=>{
+                     snap.forEach( ch =>{
+                        sortedList.push([ch.key,ch.val()])
+                   })
+                });
             } else {
                 return onComplete(undefined, []);
             }
-            const lastChat = Object.keys(allChats.val())[0];
+            const lastChat = sortedList[0];
+            
             userChatRoomsRef = firebase().ref("UsersChat").child(user)
-                                .endAt(null,lastChat)
-                                .limitToLast(limit);
+                    .orderByChild('lastModified')
+                    .endAt(lastChat[1].lastModified,lastChat[0])
+                    .limitToLast(limit)
         }
 
         // get data through firebase
-        userChatRoomsRef.orderByChild('lastModified').once("value", function (chatSnapshot) {
+        userChatRoomsRef.once("value", function (chatSnapshot) {
             var list = []
             var chatsCount = chatSnapshot.numChildren()
             chatSnapshot.forEach((ch) => {
