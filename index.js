@@ -154,7 +154,11 @@ class ChatRoom {
                     chatRoomRef.update({
                         isRemoved: true,
                     });
-                } else chatRoomRef.remove();
+                } else {
+                    chatRoomRef.remove();
+                    firebase().ref("UsersChat").child(userA).child(chatKey).remove();
+                    firebase().ref("UsersChat").child(userB).child(chatKey).remove();
+                }
             }
         })
     }
