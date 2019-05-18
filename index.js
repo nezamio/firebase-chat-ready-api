@@ -256,7 +256,7 @@ class ChatRoom {
         }
 
         // get data through firebase
-        userChatRoomsRef.once("value", function (chatSnapshot) {
+        userChatRoomsRef.on("value", function (chatSnapshot) {
             var list = []
             var chatsCount = chatSnapshot.numChildren()
             chatSnapshot.forEach((ch) => {
@@ -372,6 +372,8 @@ class ChatRoom {
                     photo: snap.members[1].photo
                 }
                 var newChat = new ChatRoom(snap.title, userAFire, userBFire, undefined, chat)
+                newChat.createdAt = snap.createdAt
+                newChat.isRemoved = snap.isRemoved || false;
                 return onSuccess(undefined, newChat);
             } catch (error) {
                 return onSuccess(error, undefined);
