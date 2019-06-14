@@ -1,5 +1,5 @@
 const initializeApp = require("firebase").initializeApp;
-const firebase = require("firebase").database;
+let firebase = require("firebase").database;
 const _ = require("lodash")
 
 // add new errors references
@@ -13,14 +13,17 @@ class MessageError extends Error {}
  */
 function initializeFirebase(configures, app) {
     // set configurations 
-    if (!_.isObjectLike(configures) && !app)
-        throw new InitializeAppError("The configures must be an object")
+    if (_.isEmpty(configures))
+        throw new InitializeAppError("The configures is required to initialize app")
 
-    if (_.isEmpty(configures) && !app)
-        throw new InitializeAppError("The configures shouldn't be empty")
+    if (!_.isObjectLike(configures))
+        throw new InitializeAppError("The configures must be an object or app instance")
+    
+    // Initialize Firebase
+    if(configures && configures.database) firebase = app.database
 
-    if(configures && !app) initializeApp(configures); // Initialize Firebase
-    if(app) firebase = app.database
+    else initializeApp(configures);
+
 }
 /**@class */
 class ChatRoom {
