@@ -11,16 +11,16 @@ class MessageError extends Error {}
  * initialize Firebase connection and configuration 
  * @param {Object} configures your config object 
  */
-function initializeFirebase(configures) {
+function initializeFirebase(configures, app) {
     // set configurations 
-    if (!_.isObjectLike(configures))
+    if (!_.isObjectLike(configures) && !app)
         throw new InitializeAppError("The configures must be an object")
 
-    if (_.isEmpty(configures))
+    if (_.isEmpty(configures) && !app)
         throw new InitializeAppError("The configures shouldn't be empty")
 
-    // Initialize Firebase
-    initializeApp(configures);
+    if(configures && !app) initializeApp(configures); // Initialize Firebase
+    if(app) firebase = app.database
 }
 /**@class */
 class ChatRoom {
