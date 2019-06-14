@@ -20,7 +20,7 @@ function initializeFirebase(configures, app) {
         throw new InitializeAppError("The configures must be an object or app instance")
     
     // Initialize Firebase
-    if(configures && configures.database) firebase = app.database
+    if(configures && configures.database) firebase = configures.database
 
     else initializeApp(configures);
 
